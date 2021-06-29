@@ -28,12 +28,26 @@ export function Home() {
   }
 
   function handleMarkTaskAsDone(id: number) {
-    console.log('handleMarkTaskAsDone', tasks,id)
+
+    let filterItemDoneTrue = tasks.filter(task => task.id === id)
+    // .map(task => {return({...task,done: true})})
+
+    let newObj = {
+      id: filterItemDoneTrue[0].id,
+      title: filterItemDoneTrue[0].title,
+      done: !filterItemDoneTrue[0].done
+    }
+
+    let filterItemDoneFalse = tasks.filter(task => task.id !== id)
+
+    setTasks([...filterItemDoneFalse, newObj])
+    // console.log('handleMarkTaskAsDone', tasks,id)
     //TODO - mark task as done if exists
   }
 
   function handleRemoveTask(id: number) {
-    console.log('handleRemoveTask', tasks,id)
+    // console.log('handleRemoveTask', tasks,id)
+    setTasks(oldState => oldState.filter(task => task.id !== id))
     //TODO - remove task from state
   }
 
