@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Header } from '../components/Header';
 import { MyTasksList } from '../components/MyTasksList';
@@ -12,56 +13,92 @@ interface Task {
 
 export function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [visualMode, setVisualMode] = useState("light")
 
   function handleAddTask(newTaskTitle: string) {
+    if (!newTaskTitle) return
+
     const data = {
-      id:new Date().getTime(),
+      id: new Date().getTime(),
       title: newTaskTitle,
       done: false
     }
 
-    if(newTaskTitle !== ''){
-      setTasks(oldState => [...oldState, data])
-
-    }
-    //TODO - add new task if it's not empty
+    setTasks((oldState) => [...oldState, data])
   }
 
   function handleMarkTaskAsDone(id: number) {
+    const newTasks = tasks.map((task) => {
+      if (task.id === id) {
+        return {
+          ...task,
+          done: !task.done
+        }
+      } else return task
+    })
 
-    let filterItemDoneTrue = tasks.filter(task => task.id === id)
-    // .map(task => {return({...task,done: true})})
-
-    let newObj = {
-      id: filterItemDoneTrue[0].id,
-      title: filterItemDoneTrue[0].title,
-      done: !filterItemDoneTrue[0].done
-    }
-
-    let filterItemDoneFalse = tasks.filter(task => task.id !== id)
-
-    setTasks([...filterItemDoneFalse, newObj])
-    // console.log('handleMarkTaskAsDone', tasks,id)
-    //TODO - mark task as done if exists
+    setTasks(newTasks)
   }
 
   function handleRemoveTask(id: number) {
-    // console.log('handleRemoveTask', tasks,id)
-    setTasks(oldState => oldState.filter(task => task.id !== id))
-    //TODO - remove task from state
+    setTasks((oldState) => oldState.filter(
+      (task) => task.id !== id
+    ))
+  }
+
+  function handleToogleVisualMode(){
+    console.log('handleToogleVisualMode')
+    const toggledMode = visualMode === "light" ? "dark" : "light"
+    setVisualMode(toggledMode)
   }
 
   return (
     <>
-      <Header />
+      <Header visualTheme={visualMode}/>
 
-      <TodoInput addTask={handleAddTask} />
+      <View style={visualMode === "light" ? styles.lightbackgroundColor : styles.darkbackgroundColor}> 
+        <TodoInput addTask={handleAddTask} visualMode={visualMode}/>
+      </View>
 
-      <MyTasksList 
-        tasks={tasks} 
-        onPress={handleMarkTaskAsDone} 
-        onLongPress={handleRemoveTask} 
-      />
+      <View style={[styles.container, visualMode === "light" ? styles.lightbackgroundColor : styles.darkbackgroundColor]}> 
+        <MyTasksList
+          tasks={tasks} 
+          onPress={handleMarkTaskAsDone} 
+          onLongPress={handleRemoveTask}
+          visualMode={visualMode}
+        />
+      </View>
+
+      <View style={visualMode === "light" ? styles.lightbackgroundColor : styles.darkbackgroundColor}> 
+        <TouchableOpacity
+        style={styles.button}
+          onPress={handleToogleVisualMode}
+        >
+          <Text style={{color:'white'}}>{visualMode === "light" ? 'Dark Mode' : 'Light Mode'}</Text>
+        </TouchableOpacity>
+      </View>
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  lightbackgroundColor: {
+    backgroundColor: '#fff',
+    alignItems: 'center'
+  },
+  darkbackgroundColor: {
+    backgroundColor: '#10101E',
+    alignItems: 'center'
+  },
+  button:{
+    backgroundColor: '#273FAD',
+    width: 100,
+    padding: 10,
+    margin: 10
+    
+
+  }
+});
